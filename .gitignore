@@ -1,7 +1,6 @@
 .prettierrc
 
 node_modules
-vendor/marp-cli
 
 # Generated files
 dist
