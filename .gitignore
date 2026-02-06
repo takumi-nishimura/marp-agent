@@ -1,0 +1,19 @@
+.prettierrc
+
+node_modules
+vendor/marp-cli
+
+# Generated files
+dist
+*.log
+.cache
+*.tmp
+*.temp
+.DS_Store
+*.html
+
+.env
+
+# Playwright test artifacts
+out/
+tests/

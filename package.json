@@ -1,0 +1,35 @@
+{
+  "name": "marp-agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm run submodule:build",
+    "submodule:build": "npm --prefix vendor/marp-cli install && npm --prefix vendor/marp-cli run build",
+    "theme:build": "tailwindcss -i themes/src/lab.css -o themes/lab.css",
+    "theme:watch": "tailwindcss -i themes/src/lab.css -o themes/lab.css --watch",
+    "new": "node scripts/new-deck.js",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "playwright:install": "playwright install chromium"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "volta": {
+    "node": "25.6.0",
+    "npm": "11.9.0"
+  },
+  "dependencies": {
+    "@marp-team/marp-cli": "file:./vendor/marp-cli",
+    "@tailwindcss/cli": "^4.1.18",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "playwright": "^1.58.1",
+    "prettier": "3.8.1"
+  }
+}

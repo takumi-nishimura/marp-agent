@@ -1,0 +1,240 @@
+/* Light mode (default) */
+section {
+  --fg: var(--color-deck-black);
+  --bg: var(--color-deck-white);
+  --fg-muted: var(--color-deck-gray);
+
+  /* Accent color for gradients - overridden by color schemes */
+  --highlight: #0969da;
+
+  /* Gradient mid color: based on highlight with transparency */
+  --gradient-mid: color-mix(in srgb, var(--highlight) 40%, transparent);
+
+  /* Emphasis colors - overridden by color schemes */
+  --color-em: var(--color-deck-yellow);
+  --color-strong: #d97706; /* Orange for better visibility on light background */
+
+  /* New list-based logo variables - configurable per-slide via style directive */
+  --logos-light: url(logos/logo_light.svg);
+  --logos-dark: url(logos/logo_dark.svg);
+
+  /* Backward compatibility aliases */
+  --logo-primary-light: url(logos/logo_light.svg);
+  --logo-primary-dark: url(logos/logo_dark.svg);
+  --logo-secondary-light: none;
+  --logo-secondary-dark: none;
+  --logo-light: var(--logo-primary-light);
+  --logo-dark: var(--logo-primary-dark);
+
+  /* Configurable padding for different aspect ratios */
+  --padding-top: 0;
+  --padding-x: 40px;
+  --padding-bottom: 0;
+
+  /* Logo dimensions and spacing */
+  --logo-title-size: 80px;
+  --logo-title-spacing: 10px;
+  --logo-header-size: 50px;
+  --logo-header-spacing: 35px;
+
+  width: 1280px;
+  height: 720px;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 28px;
+
+  margin: 0;
+  padding-top: var(--padding-top);
+  padding-left: var(--padding-x);
+  padding-right: var(--padding-x);
+  padding-bottom: var(--padding-bottom);
+
+  color: var(--fg);
+  background-color: var(--bg);
+}
+
+/* Dark mode (invert) - CSS variables are inverted */
+section.invert {
+  --fg: var(--color-deck-white);
+  --bg: var(--color-deck-black);
+  --fg-muted: #aaa;
+
+  /* Lighter accent for dark mode */
+  --highlight: #58a6ff;
+
+  /* No swap needed - logo filenames already indicate their purpose */
+  /* logo_light.svg = light colored logo for dark backgrounds */
+  /* logo_dark.svg = dark colored logo for light backgrounds */
+}
+
+/* Markdown element reset (needed without Gaia) */
+section h1 {
+  font-size: 2.25em; /* Same as .text-xl4 */
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+  font-weight: bold;
+}
+section h2 {
+  font-size: 1.5em; /* Same as .text-xl2 */
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+  font-weight: bold;
+}
+section h3 {
+  font-size: 1.25em; /* Same as .text-xl */
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+  font-weight: bold;
+}
+section ul,
+section ol {
+  margin: 0.3rem 0;
+  padding-left: 1.5em;
+}
+section ul {
+  list-style-type: disc;
+}
+section ol {
+  list-style-type: decimal;
+}
+section li {
+  margin: 0.2em 0;
+}
+section p {
+  margin: 0.5em 0;
+}
+
+/* Pagination */
+section::after {
+  font-size: 0.5em;
+  color: var(--fg-muted);
+  content: attr(data-marpit-pagination) " / " attr(data-marpit-pagination-total);
+  padding-right: 20px;
+  padding-bottom: 20px;
+}
+
+/* Header full-bleed */
+section > header {
+  box-sizing: border-box;
+  position: relative;
+  left: calc(-1 * var(--padding-x));
+  width: calc(100% + (var(--padding-x) * 2));
+  top: calc(-1 * var(--padding-top));
+  margin: 0;
+}
+
+/* Non-title slides - no top padding, space created by content margin */
+section:not(.title) {
+  padding-top: 0;
+}
+
+/* Add top margin to content to make space for header */
+section:not(.title) > :not(header) {
+  margin-top: 60px;
+}
+
+/* Title slide - reduce padding since header is absolute positioned */
+section.title {
+  padding-top: 20px;
+}
+section.title h1 {
+  font-size: 2.5em;
+  text-align: center;
+  margin-top: 150px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--fg);
+}
+section.title p {
+  text-align: right;
+  font-size: 1.2em;
+  margin-top: 100px;
+  margin-right: 50px;
+}
+
+/* Title slide header - uses contrasting logo on background */
+section.title header {
+  background-image: var(--logos-dark);
+  background-repeat: no-repeat;
+  background-position:
+    left 20px top 10px,
+    left calc(20px + (var(--logo-title-size) + var(--logo-title-spacing))) top 10px,
+    left calc(20px + (var(--logo-title-size) + var(--logo-title-spacing)) * 2) top 10px,
+    left calc(20px + (var(--logo-title-size) + var(--logo-title-spacing)) * 3) top 10px,
+    left calc(20px + (var(--logo-title-size) + var(--logo-title-spacing)) * 4) top 10px;
+  background-size:
+    var(--logo-title-size),
+    var(--logo-title-size),
+    var(--logo-title-size),
+    var(--logo-title-size),
+    var(--logo-title-size);
+
+  /* Ensure header has enough height for the logo */
+  min-height: calc(var(--logo-title-size) + 20px);
+
+  padding-right: var(--padding-x);
+  text-align: right;
+
+  color: var(--fg-muted);
+}
+
+/* Title slide with invert - dark background needs light logo */
+section.title.invert {
+  --fg: var(--color-deck-white);
+  --bg: var(--color-deck-black);
+  --fg-muted: #aaa;
+}
+section.title.invert header {
+  /* Use light logo (logo_light.svg) for dark background */
+  background-image: var(--logos-light);
+}
+
+/* Non-title slide header with gradient background + logo */
+section:not(.title) header {
+  /* Position header flush with page top */
+  position: absolute;
+  top: 0;  /* Position at section top */
+  left: calc(-1 * var(--padding-x));  /* Full-bleed left */
+  width: calc(100% + (var(--padding-x) * 2));  /* Full-bleed width */
+
+  /* Gradient background + logo (logo sits on --bg colored area) */
+  background-image:
+    var(--logos-dark),
+    linear-gradient(
+      to right,
+      var(--fg) 10%,
+      var(--gradient-mid) 65%,
+      var(--bg) 100%
+    );
+  background-repeat: no-repeat;
+  background-position:
+    right calc(var(--padding-x) + 20px) center,  /* Logo position with extra margin */
+    left center;  /* Gradient position */
+  background-size:
+    auto var(--logo-header-size),  /* Logo size */
+    100% 100%;  /* Gradient size - full width and height */
+
+  text-align: left;
+  padding-left: calc(var(--padding-x) + 20px);  /* Extra margin for visual spacing */
+
+  color: var(--bg);
+  font-size: 1rem;
+  font-weight: 600;
+
+  height: 60px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+  display: flex;
+  align-items: center;
+}
+
+/* Non-title slide with invert - use light logo */
+section:not(.title).invert header {
+  background-image:
+    var(--logos-light),
+    linear-gradient(
+      to right,
+      var(--fg) 10%,
+      var(--gradient-mid) 65%,
+      var(--bg) 100%
+    );
+}

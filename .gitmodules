@@ -1,0 +1,3 @@
+[submodule "vendor/marp-cli"]
+	path = vendor/marp-cli
+	url = https://github.com/takumi-nishimura/marp-cli

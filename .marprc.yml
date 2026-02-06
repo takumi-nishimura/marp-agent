@@ -1,0 +1,6 @@
+allowLocalFiles: true
+themeSet:
+  - ./themes/lab.css
+html: true
+bespoke:
+  presenterCursor: true
