@@ -75,13 +75,13 @@ section h1 {
 }
 section h2 {
   font-size: 1.5em; /* Same as .text-xl2 */
-  margin-top: 0.5em;
+  margin-top: 0.25em;
   margin-bottom: 0.25em;
   font-weight: bold;
 }
 section h3 {
   font-size: 1.25em; /* Same as .text-xl */
-  margin-top: 0.5em;
+  margin-top: 0.25em;
   margin-bottom: 0.25em;
   font-weight: bold;
 }
@@ -128,7 +128,7 @@ section:not(.title) {
 }
 
 /* Add top margin to content to make space for header */
-section:not(.title) > :not(header) {
+section:not(.title) > header + * {
   margin-top: 60px;
 }
 

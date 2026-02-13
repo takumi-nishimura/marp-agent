@@ -13,7 +13,7 @@ style: |
 
 <!-- _paginate: skip -->
 <!-- _class: title -->
-<!-- _header: 2026-02-02 -->
+<!-- _header: 2026-01-01 -->
 
 # Marp Slide Guide
 
