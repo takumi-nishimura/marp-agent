@@ -19,9 +19,11 @@
   .col {
     display: flex;
     gap: 1rem;
+    align-items: flex-start;
   }
   .col > * {
     flex: 1;
+    align-self: flex-start;
   }
 
   /* Fit content */

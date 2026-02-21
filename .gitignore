@@ -11,7 +11,12 @@ dist
 .DS_Store
 *.html
 
+*.mp4
+*.mov
+
 .env
+.obsidian
+
 
 # Playwright test artifacts
 out/
