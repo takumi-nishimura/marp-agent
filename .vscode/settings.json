@@ -1,15 +1,20 @@
 {
+  "[markdown]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "prettier.configPath": ".prettierrc.json",
   "markdown.marp.html": "all",
   "markdown.marp.themes": ["./themes/lab.css"],
   "markdownlint.config": {
     "MD007": {
       "indent": 2
     },
-    "MD024": {
-      "siblings_only": true
-    },
+    "MD024": false,
     "MD032": false,
     "MD033": false,
+    "MD036": false,
     "MD045": false,
     "MD060": false
   },
@@ -70,5 +75,8 @@
         }
       }
     ]
-  }
+  },
+  "cSpell.words": [
+    "Hime"
+  ]
 }

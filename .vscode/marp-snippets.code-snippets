@@ -116,6 +116,12 @@
     ],
     "description": "New slide page with header",
   },
+  "Footnote": {
+    "prefix": "footnote",
+    "scope": "markdown",
+    "body": ["<div class=\"footnote\">", "", "${1:reference}", "", "</div>"],
+    "description": "Footnote reference at bottom of slide",
+  },
   "TitlePage": {
     "prefix": "title",
     "scope": "markdown",
