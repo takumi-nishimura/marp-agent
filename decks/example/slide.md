@@ -70,6 +70,10 @@ This is ==marked== text with background.
 - Item 2
 - Item 3
 
+---
+
+<!-- _header: Lists -->
+
 ## Ordered List
 
 1. First item
@@ -82,35 +86,31 @@ This is ==marked== text with background.
 
 <!-- _header: Text Sizes -->
 
-## Text Size Classes
+## Display Size Classes
 
-<div class="col">
-<div>
+- `text-xl5` - 3em
+- `text-xl4` - 2.25em
+- `text-xl3` - 1.875em
+- `text-xl2` - 1.5em
+- `text-xl` - 1.25em
 
-<span class="text-xl5">text-xl5 (3em)</span>
-<span class="text-xl4">text-xl4 (2.25em)</span>
-<span class="text-xl3">text-xl3 (1.875em)</span>
-<span class="text-xl2">text-xl2 (1.5em)</span>
-<span class="text-xl">text-xl (1.25em)</span>
+---
 
-</div>
-<div>
+<!-- _header: Text Sizes -->
 
-<span class="text-lg">text-lg (1.125em)</span>
-<span>default (1em)</span>
-<span class="text-sm">text-sm (0.875em)</span>
-<span class="text-xs">text-xs (0.75em)</span>
-<span class="text-xs2">text-xs2 (0.625em)</span>
-<span class="text-xs3">text-xs3 (0.5em)</span>
+## Body Size Classes
 
-</div>
-</div>
+- `text-lg` - 1.125em
+- `default` - 1em
+- `text-sm` - 0.875em
+
+Split content before reducing type.
 
 ---
 
 <!-- _header: Colors -->
 
-## Text Color Classes
+## Neutral and Warm Colors
 
 <span class="white bg-gray-800 px-2">white</span>
 <span class="black">black</span>
@@ -118,6 +118,13 @@ This is ==marked== text with background.
 <span class="red">red</span>
 <span class="orange">orange</span>
 <span class="yellow">yellow</span>
+
+---
+
+<!-- _header: Colors -->
+
+## Cool and Accent Colors
+
 <span class="green">green</span>
 <span class="cyan">cyan</span>
 <span class="blue">blue</span>
@@ -171,7 +178,7 @@ Content for the right side.
 
 <!-- _header: Callout Boxes -->
 
-## Callout Styles
+## Informational Callouts
 
 <div class="note">
 
@@ -184,6 +191,12 @@ Content for the right side.
 **Tip**: Helpful suggestions.
 
 </div>
+
+---
+
+<!-- _header: Callout Boxes -->
+
+## Cautionary Callouts
 
 <div class="warning">
 
@@ -221,11 +234,7 @@ Content for the right side.
 
 Available classes:
 
-- `.w-full` - 100%
-- `.w-3/4` - 75%
-- `.w-1/2` - 50%
-- `.w-1/3` - 33%
-- `.w-1/4` - 25%
+Use `.w-full`, `.w-3/4`, `.w-1/2`, `.w-1/3`, or `.w-1/4`.
 
 </div>
 <div>
@@ -256,18 +265,23 @@ This creates right-aligned text suitable for title slides.
 
 <!-- _header: Color Schemes -->
 
-## Available Color Schemes
+## Dark Color Schemes
 
-| Class             | Description                           |
-| :---------------- | :------------------------------------ |
-| `.neogaia`        | Gaia-inspired theme (dark by default) |
-| `.neogaia.invert` | Neogaia light mode                    |
-| `.dracula`        | Purple accent, dark background        |
-| `.one-dark`       | Blue accent, dark background          |
-| `.nord`           | Cyan accent, dark background          |
-| `.github-light`   | Blue accent, light background         |
+- `.neogaia` - Dark default
+- `.dracula` - Purple accent
+- `.one-dark` - Blue accent
+- `.nord` - Cyan accent
 
-Dark themes (neogaia, dracula, one-dark, nord) automatically use inverted logos.
+Dark themes automatically switch to inverted logos.
+
+---
+
+<!-- _header: Color Schemes -->
+
+## Light Color Schemes
+
+- `.neogaia.invert` - Light variant
+- `.github-light` - Light canvas
 
 ---
 
