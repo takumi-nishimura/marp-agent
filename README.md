@@ -87,6 +87,26 @@ npm run theme:build
 npm run theme:watch
 ```
 
+### Slide Preview
+
+Use the helper script to start Marp server mode, watch files, and open the deck in a browser.
+
+```bash
+# Open the example deck
+npm run slide
+
+# Open the example deck at displayed page 12
+npm run slide -- 12
+
+# Open a specific deck
+npm run slide -- decks/my-presentation/slide.md
+
+# Open a specific deck at displayed page 12
+npm run slide -- decks/my-presentation/slide.md 12
+```
+
+The optional page argument is the displayed pagination number, not the raw URL hash index. The helper resolves `paginate: skip` slides and opens the matching `#<slide-id>` URL automatically.
+
 ### Testing
 
 ```bash

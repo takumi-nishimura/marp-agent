@@ -8,6 +8,8 @@
     "submodule:build": "npm --prefix vendor/marp-cli install && npm --prefix vendor/marp-cli run build",
     "theme:build": "tailwindcss -i themes/src/lab.css -o themes/lab.css",
     "theme:watch": "tailwindcss -i themes/src/lab.css -o themes/lab.css --watch",
+    "slide": "node scripts/marp-serve.js",
+    "slide:example": "node scripts/marp-serve.js decks/example/slide.md",
     "new": "node scripts/new-deck.js",
     "outline": "node scripts/generate-outline.js",
     "deck:validate": "node scripts/validate-deck.js",
