@@ -240,6 +240,20 @@ Available classes:
 
 ---
 
+<!-- _header: Info Block -->
+
+## Info Block for Title Slides
+
+Use `.info` class for author/affiliation info:
+
+```html
+<div class="info">Affiliation: Department Name: Author Name</div>
+```
+
+This creates right-aligned text suitable for title slides.
+
+---
+
 <!-- _header: Color Schemes -->
 
 ## Available Color Schemes
@@ -252,16 +266,6 @@ Available classes:
 | `.one-dark`       | Blue accent, dark background          |
 | `.nord`           | Cyan accent, dark background          |
 | `.github-light`   | Blue accent, light background         |
-
-```markdown
----
-class: neogaia
----
-
-<!-- For light mode -->
-
-class: neogaia invert
-```
 
 Dark themes (neogaia, dracula, one-dark, nord) automatically use inverted logos.
 
@@ -369,20 +373,6 @@ This slide uses the **Neogaia** color scheme with `.invert` (light mode).
 
 ---
 
-<!-- _header: Info Block -->
-
-## Info Block for Title Slides
-
-Use `.info` class for author/affiliation info:
-
-```html
-<div class="info">Affiliation: Department Name: Author Name</div>
-```
-
-This creates right-aligned text suitable for title slides.
-
----
-
 <!-- _header: Mermaid Diagrams -->
 
 ## Flowchart
@@ -430,8 +420,9 @@ stateDiagram-v2
 
 <!-- _header: Mermaid Diagrams -->
 
-## 日本語テスト
+## CJK & Math in Diagrams
 
+<div class="col">
 <div style="width: 500px;">
 
 ```mermaid
@@ -439,9 +430,18 @@ graph LR
   A[開始] --> B{判定}
   B -->|はい| C[処理]
   B -->|いいえ| D[終了]
-  D --> E[$$E=mc^2$$]
 ```
 
+</div>
+<div>
+
+```mermaid
+graph LR
+  A["$x_0$"] --> B["$f(x) = x^2$"]
+  B --> C["$$E = mc^2$$"]
+```
+
+</div>
 </div>
 
 ---
