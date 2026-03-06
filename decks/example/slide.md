@@ -240,6 +240,20 @@ Available classes:
 
 ---
 
+<!-- _header: Info Block -->
+
+## Info Block for Title Slides
+
+Use `.info` class for author/affiliation info:
+
+```html
+<div class="info">Affiliation: Department Name: Author Name</div>
+```
+
+This creates right-aligned text suitable for title slides.
+
+---
+
 <!-- _header: Color Schemes -->
 
 ## Available Color Schemes
@@ -252,16 +266,6 @@ Available classes:
 | `.one-dark`       | Blue accent, dark background          |
 | `.nord`           | Cyan accent, dark background          |
 | `.github-light`   | Blue accent, light background         |
-
-```markdown
----
-class: neogaia
----
-
-<!-- For light mode -->
-
-class: neogaia invert
-```
 
 Dark themes (neogaia, dracula, one-dark, nord) automatically use inverted logos.
 
@@ -369,17 +373,76 @@ This slide uses the **Neogaia** color scheme with `.invert` (light mode).
 
 ---
 
-<!-- _header: Info Block -->
+<!-- _header: Mermaid Diagrams -->
 
-## Info Block for Title Slides
+## Flowchart
 
-Use `.info` class for author/affiliation info:
-
-```html
-<div class="info">Affiliation: Department Name: Author Name</div>
+```mermaid
+graph LR
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Process]
+  B -->|No| D[Skip]
+  C --> E[End]
+  D --> E
 ```
 
-This creates right-aligned text suitable for title slides.
+---
+
+<!-- _header: Mermaid Diagrams -->
+
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+  Client ->> Server: Request
+  Server ->> DB: Query
+  DB -->> Server: Result
+  Server -->> Client: Response
+```
+
+---
+
+<!-- _header: Mermaid Diagrams -->
+
+## State Diagram
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Processing: submit
+  Processing --> Success: ok
+  Processing --> Error: fail
+  Error --> Idle: retry
+  Success --> [*]
+```
+
+---
+
+<!-- _header: Mermaid Diagrams -->
+
+## CJK & Math in Diagrams
+
+<div class="col">
+<div style="width: 500px;">
+
+```mermaid
+graph LR
+  A[開始] --> B{判定}
+  B -->|はい| C[処理]
+  B -->|いいえ| D[終了]
+```
+
+</div>
+<div>
+
+```mermaid
+graph LR
+  A["$x_0$"] --> B["$f(x) = x^2$"]
+  B --> C["$$E = mc^2$$"]
+```
+
+</div>
+</div>
 
 ---
 
