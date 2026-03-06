@@ -13,7 +13,7 @@ style: |
 
 <!-- _paginate: skip -->
 <!-- _class: title -->
-<!-- _header: date -->
+<!-- _header: {{DATE}} -->
 
 # Title
 

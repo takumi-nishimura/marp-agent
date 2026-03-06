@@ -1,4 +1,5 @@
 const marpHideSlidesPlugin = require('./scripts/hide-slides-plugin')
+const marpMermaidPlugin = require('./scripts/mermaid-plugin')
 
 module.exports = {
   allowLocalFiles: true,
@@ -7,5 +8,5 @@ module.exports = {
   bespoke: {
     presenterCursor: true,
   },
-  engine: ({ marp }) => marp.use(marpHideSlidesPlugin),
+  engine: ({ marp }) => marp.use(marpHideSlidesPlugin).use(marpMermaidPlugin),
 }
