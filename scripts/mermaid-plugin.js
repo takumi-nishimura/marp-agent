@@ -2,24 +2,15 @@
 // Uses beautiful-mermaid for DOM-free SVG rendering (works inside Marp's
 // foreignObject context where standard mermaid.js misdetects font metrics).
 const { execFileSync } = require('child_process')
+const path = require('path')
 
-const RENDER_SCRIPT = [
-  "const{renderMermaid,THEMES}=require(" +
-    JSON.stringify(require.resolve('beautiful-mermaid')) +
-    ");",
-  "let d='';",
-  "process.stdin.on('data',c=>d+=c);",
-  "process.stdin.on('end',()=>",
-  "renderMermaid(d,{...THEMES['github-light'],transparent:true})",
-  ".then(s=>process.stdout.write(s))",
-  ".catch(e=>{process.stderr.write(e.message);process.exit(1)}));",
-].join('')
+const RENDER_SCRIPT = path.join(__dirname, '_mermaid-render.js')
 
 function renderMermaidSync(code) {
-  return execFileSync(process.execPath, ['-e', RENDER_SCRIPT], {
+  return execFileSync(process.execPath, [RENDER_SCRIPT], {
     input: code,
     encoding: 'utf-8',
-    timeout: 15000,
+    timeout: 30000,
   })
 }
 
