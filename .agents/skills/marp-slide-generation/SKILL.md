@@ -1,6 +1,6 @@
 ---
 name: marp-slide-generation
-description: Generate, revise, and validate slide decks in this repository with the brief-first Marp workflow. Use when Codex needs to create a new deck under decks/, turn brief.md into outline.md or slide.md, add Mermaid diagrams, render HTML/PDF/PPTX with the local Marp CLI, or fix slide density and overflow issues using this repo's theme and validator.
+description: Generate, revise, validate, and visually review slide decks in this repository with the brief-first Marp workflow. Use when Codex needs to create a new deck under decks/, turn brief.md into outline.md or slide.md, add Mermaid diagrams, render HTML/PDF/PPTX with the local Marp CLI, check appearance with Playwright, or fix slide density and overflow issues using this repo's theme and validator.
 ---
 
 # Marp Slide Generation
@@ -26,6 +26,11 @@ description: Generate, revise, and validate slide decks in this repository with 
    - Run `npm run deck:validate -- decks/<name>/slide.md`.
    - If findings remain, fix them or call out the deliberate exception.
    - Use `npm run deck:validate -- decks/<name>/slide.md --report-dir out/<name>` when screenshots or reports will help review.
+6. Check appearance with Playwright before handoff when layout or styling changed.
+   - Render HTML with the local CLI: `./node_modules/.bin/marp --allow-local-files --config-file marp.config.js decks/<name>/slide.md -o out/<name>.html`.
+   - Open the rendered HTML in Playwright and inspect the actual slide rendering, not just the markdown source.
+   - Capture screenshots for the title slide and any edited or high-risk slides when visual review evidence will help.
+   - Prefer the rendered HTML path over Marp server mode for automated checks.
 
 ## Use repository-specific features
 
@@ -53,6 +58,13 @@ npm run slide -- decks/<name>/slide.md 12
 ./node_modules/.bin/marp --allow-local-files --config-file marp.config.js decks/<name>/slide.md -o out/<name>.pdf
 ./node_modules/.bin/marp --allow-local-files --config-file marp.config.js decks/<name>/slide.md -o out/<name>.pptx
 ```
+
+## Check appearance with Playwright
+
+- Use Playwright after rendering HTML when you need to verify spacing, overflow, image fit, theme application, or slide-to-slide consistency.
+- Open `file://.../out/<name>.html` with Chromium in Playwright, wait for load completion, and inspect the rendered `section` elements.
+- Save screenshots into `out/` when the user asked for visual confirmation or when you need artifacts for review.
+- Treat Playwright as a visual QA step that complements `deck:validate`, not a replacement for it.
 
 ## Keep the quality bar high
 
