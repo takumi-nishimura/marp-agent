@@ -383,6 +383,69 @@ This creates right-aligned text suitable for title slides.
 
 ---
 
+<!-- _header: Mermaid Diagrams -->
+
+## Flowchart
+
+```mermaid
+graph LR
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Process]
+  B -->|No| D[Skip]
+  C --> E[End]
+  D --> E
+```
+
+---
+
+<!-- _header: Mermaid Diagrams -->
+
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+  Client ->> Server: Request
+  Server ->> DB: Query
+  DB -->> Server: Result
+  Server -->> Client: Response
+```
+
+---
+
+<!-- _header: Mermaid Diagrams -->
+
+## State Diagram
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Processing: submit
+  Processing --> Success: ok
+  Processing --> Error: fail
+  Error --> Idle: retry
+  Success --> [*]
+```
+
+---
+
+<!-- _header: Mermaid Diagrams -->
+
+## 日本語テスト
+
+<div style="width: 500px;">
+
+```mermaid
+graph LR
+  A[開始] --> B{判定}
+  B -->|はい| C[処理]
+  B -->|いいえ| D[終了]
+  D --> E[$$E=mc^2$$]
+```
+
+</div>
+
+---
+
 <!-- _paginate: skip -->
 <!-- _class: title invert -->
 <!-- _header: 2026-02-02 -->

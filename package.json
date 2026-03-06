@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm run submodule:build",
+    "postinstall": "patch-package && npm run submodule:build",
     "submodule:build": "npm --prefix vendor/marp-cli install && npm --prefix vendor/marp-cli run build",
     "theme:build": "tailwindcss -i themes/src/lab.css -o themes/lab.css",
     "theme:watch": "tailwindcss -i themes/src/lab.css -o themes/lab.css --watch",
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",
+    "patch-package": "^8.0.1",
     "playwright": "^1.58.1",
     "prettier": "3.8.1"
   }

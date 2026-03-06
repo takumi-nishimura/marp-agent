@@ -1,0 +1,32 @@
+diff --git a/node_modules/beautiful-mermaid/dist/index.cjs b/node_modules/beautiful-mermaid/dist/index.cjs
+index b8205a2..b72a862 100644
+--- a/node_modules/beautiful-mermaid/dist/index.cjs
++++ b/node_modules/beautiful-mermaid/dist/index.cjs
+@@ -3146,12 +3146,25 @@ function renderMermaidAscii(text, options = {}) {
+ }
+ 
+ // src/styles.ts
++function _effectiveLength(text) {
++  let len = 0;
++  for (const ch of text) {
++    const cp = ch.codePointAt(0);
++    // CJK Unified Ideographs, Hiragana, Katakana, Fullwidth Forms, etc.
++    if (cp >= 0x2E80 && cp <= 0x9FFF || cp >= 0xF900 && cp <= 0xFAFF || cp >= 0xFE30 && cp <= 0xFFEF || cp >= 0x20000 && cp <= 0x2FA1F) {
++      len += 1.8;
++    } else {
++      len += 1;
++    }
++  }
++  return len;
++}
+ function estimateTextWidth(text, fontSize, fontWeight) {
+   const widthRatio = fontWeight >= 600 ? 0.58 : fontWeight >= 500 ? 0.55 : 0.52;
+-  return text.length * fontSize * widthRatio;
++  return _effectiveLength(text) * fontSize * widthRatio;
+ }
+ function estimateMonoTextWidth(text, fontSize) {
+-  return text.length * fontSize * 0.6;
++  return _effectiveLength(text) * fontSize * 0.6;
+ }
+ var FONT_SIZES = {
+   /** Node label text */
