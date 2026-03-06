@@ -39,6 +39,14 @@ description: Generate, revise, and validate slide decks in this repository with 
 
 - Render with the vendored Marp CLI so `marp.config.js` and local plugins are applied.
 - Run commands from the repo root or the deck directory.
+- For live editing and browser preview, prefer the repository helper instead of invoking Marp server flags manually.
+
+```bash
+npm run slide -- decks/<name>/slide.md
+npm run slide -- decks/<name>/slide.md 12
+```
+
+- The optional page argument is the displayed pagination number. The helper maps it to the correct URL hash even when the deck uses `paginate: skip`.
 
 ```bash
 ./node_modules/.bin/marp --allow-local-files --config-file marp.config.js decks/<name>/slide.md -o out/<name>.html
