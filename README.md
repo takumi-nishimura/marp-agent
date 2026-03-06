@@ -83,29 +83,43 @@ The validator reports:
 # Build theme once
 npm run theme:build
 
-# Watch for changes
-npm run theme:watch
+# Watch theme changes while editing styles
+npm run dev:theme
 ```
 
-### Slide Preview
+### Preview Commands
 
-Use the helper script to start Marp server mode, watch files, and open the deck in a browser.
+Use the preview helpers to watch files and open the deck in a browser.
 
 ```bash
-# Open the example deck
-npm run slide
+# Interactive slide-by-slide preview for the example deck
+npm run preview
 
-# Open the example deck at displayed page 12
-npm run slide -- 12
+# Interactive preview for a specific deck
+npm run preview -- decks/my-presentation/slide.md
 
-# Open a specific deck
-npm run slide -- decks/my-presentation/slide.md
+# Interactive preview starting at displayed page 12
+npm run preview -- decks/my-presentation/slide.md 12
 
-# Open a specific deck at displayed page 12
-npm run slide -- decks/my-presentation/slide.md 12
+# Scrollable full-deck overview with all slides visible
+npm run preview:overview -- decks/my-presentation/slide.md
+
+# Scrollable overview focused on displayed page 12
+npm run preview:overview -- decks/my-presentation/slide.md 12
 ```
 
-The optional page argument is the displayed pagination number, not the raw URL hash index. The helper resolves `paginate: skip` slides and opens the matching `#<slide-id>` URL automatically.
+The optional page argument is the displayed pagination number, not the raw URL hash index. Both preview modes resolve `paginate: skip` slides correctly.
+
+`npm run preview` keeps Marp's interactive viewer behavior.
+
+`npm run preview:overview` renders a no-transition overview page that lays out the full deck as scrollable thumbnails, so you can skim many slides quickly with the mouse wheel or trackpad.
+
+Backward-compatible aliases remain available:
+
+```bash
+npm run slide
+npm run slide:overview -- decks/my-presentation/slide.md
+```
 
 ### Testing
 
