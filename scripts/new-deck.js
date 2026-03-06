@@ -15,22 +15,32 @@ if (!name) {
 // Resolve all paths from repository root
 const repoRoot = path.resolve(__dirname, "..");
 const deckDir = path.join(repoRoot, name);
-const templatePath = path.join(repoRoot, "template", "slide.md");
+const templateDir = path.join(repoRoot, "template");
+const templateFiles = [
+  ["brief.md", "brief.md"],
+  ["slide.md", "slide.md"],
+];
 const date = new Date().toISOString().split("T")[0];
 
-// Check if template exists
-if (!fs.existsSync(templatePath)) {
-  console.error(`Error: Template not found at ${templatePath}`);
-  process.exit(1);
+// Check if templates exist
+for (const [templateName] of templateFiles) {
+  const templatePath = path.join(templateDir, templateName);
+  if (!fs.existsSync(templatePath)) {
+    console.error(`Error: Template not found at ${templatePath}`);
+    process.exit(1);
+  }
 }
 
 // Create directory
 fs.mkdirSync(deckDir, { recursive: true });
 
-// Copy template with date replacement
-let content = fs.readFileSync(templatePath, "utf8");
-content = content.replace("date", date);
-fs.writeFileSync(path.join(deckDir, "slide.md"), content);
+// Copy templates with date replacement
+for (const [templateName, outputName] of templateFiles) {
+  const templatePath = path.join(templateDir, templateName);
+  let content = fs.readFileSync(templatePath, "utf8");
+  content = content.replaceAll("{{DATE}}", date);
+  fs.writeFileSync(path.join(deckDir, outputName), content);
+}
 
 // Create local assets directories
 fs.mkdirSync(path.join(deckDir, "assets", "img"), { recursive: true });
@@ -43,7 +53,10 @@ const sharedPath = path.join(deckDir, "shared");
 const relativePath = path.relative(deckDir, assetsDir);
 
 // Remove existing symlink if exists
-if (fs.existsSync(sharedPath) || fs.lstatSync(sharedPath, { throwIfNoEntry: false })) {
+if (
+  fs.existsSync(sharedPath) ||
+  fs.lstatSync(sharedPath, { throwIfNoEntry: false })
+) {
   try {
     fs.unlinkSync(sharedPath);
   } catch (err) {
@@ -57,6 +70,7 @@ try {
   fs.symlinkSync(relativePath, sharedPath, symlinkType);
   const relativeToRepo = path.relative(repoRoot, deckDir);
   console.log(`✓ Created: ${relativeToRepo}/`);
+  console.log(`  - brief.md`);
   console.log(`  - slide.md`);
   console.log(`  - assets/img/`);
   console.log(`  - assets/video/`);
@@ -65,10 +79,12 @@ try {
   console.error(`Error creating symlink: ${err.message}`);
   if (os.platform() === "win32") {
     console.error(
-      "\nNote: On Windows, you may need to run as Administrator or enable Developer Mode."
+      "\nNote: On Windows, you may need to run as Administrator or enable Developer Mode.",
     );
     console.error("Alternatively, manually create the symlink:");
-    console.error(`  mklink /J "${sharedPath}" "${path.resolve(deckDir, relativePath)}"`);
+    console.error(
+      `  mklink /J "${sharedPath}" "${path.resolve(deckDir, relativePath)}"`,
+    );
   }
   process.exit(1);
 }
