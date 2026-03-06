@@ -9,7 +9,11 @@
     "theme:build": "tailwindcss -i themes/src/lab.css -o themes/lab.css",
     "theme:watch": "tailwindcss -i themes/src/lab.css -o themes/lab.css --watch",
     "new": "node scripts/new-deck.js",
-    "test": "playwright test",
+    "outline": "node scripts/generate-outline.js",
+    "deck:validate": "node scripts/validate-deck.js",
+    "test": "node scripts/run-node-tests.js",
+    "test:scaffold": "node --test test/new-deck.test.js",
+    "test:e2e": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "playwright:install": "playwright install chromium"

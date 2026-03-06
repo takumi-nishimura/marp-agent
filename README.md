@@ -24,12 +24,58 @@ This will create:
 
 ```
 decks/<name>/
-├── slide.md          # Slide content (from template)
+├── brief.md          # Structured authoring input
+├── slide.md          # Marp slide deck
 ├── assets/
 │   ├── img/          # Local images
 │   └── video/        # Local videos
 └── shared -> ../../assets  # Symlink to global assets
 ```
+
+### Brief-First Authoring Flow
+
+Start with `brief.md`, generate `outline.md`, then turn that outline into `slide.md`.
+
+`brief.md` uses a fixed schema so generation starts from a stable input:
+
+- `Audience`
+- `Duration`
+- `Core message`
+- `Audience action`
+- `Required sections`
+- `Must-use assets`
+- `Forbidden patterns`
+- `References`
+
+Keep the brief compact and concrete. If a section does not apply, write `None` instead of deleting it.
+
+Generate an outline from the brief:
+
+```bash
+npm run outline -- decks/my-presentation/brief.md
+```
+
+The generator writes `outline.md` next to the brief. Each planned slide includes:
+
+- `Title`
+- `Takeaway`
+- `Layout hint`
+- `Overflow risk`
+
+Validate a deck before review:
+
+```bash
+npm run deck:validate -- decks/my-presentation/slide.md
+
+# Write JSON/Markdown reports and per-slide screenshots for flagged slides
+npm run deck:validate -- decks/my-presentation/slide.md --report-dir out/my-presentation
+```
+
+The validator reports:
+
+- Overflow risk heuristics
+- Typography drift toward tiny text
+- Structure issues such as dense bullets, long headings, figure-plus-text density, and overpacked comparison/table slides
 
 ### Theme Development
 
@@ -47,6 +93,12 @@ npm run theme:watch
 # Run tests
 npm test
 
+# Verify deck scaffold output
+npm run test:scaffold
+
+# Run browser-based tests when they exist
+npm run test:e2e
+
 # Interactive mode
 npm run test:ui
 
@@ -62,14 +114,25 @@ npm run test:headed
 │   ├── img/
 │   ├── logos/
 │   └── video/
+├── fixtures/         # Evaluation fixtures for authoring and validation
+│   └── evaluation/
 ├── decks/            # Presentation decks
 │   └── example/
+│       ├── brief.md
+│       ├── outline.md
 │       ├── slide.md
 │       └── shared -> ../../assets
 ├── scripts/          # Utility scripts
-│   └── new-deck.js   # Deck creation script
+│   ├── generate-outline.js
+│   ├── new-deck.js
+│   └── validate-deck.js
 ├── template/         # Deck template
+│   ├── brief.md
 │   └── slide.md
+├── test/             # Scaffold regression tests
+│   ├── new-deck.test.js
+│   ├── outline.test.js
+│   └── validate-deck.test.js
 ├── themes/           # Marp themes
 │   ├── lab.css
 │   └── src/
