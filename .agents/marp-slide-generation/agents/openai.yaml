@@ -1,0 +1,7 @@
+interface:
+  display_name: "Marp Slide Generation"
+  short_description: "Generate decks with this repo's Marp workflow"
+  default_prompt: "Use $marp-slide-generation to create or revise a deck in this repository from brief.md through validation."
+
+policy:
+  allow_implicit_invocation: true
