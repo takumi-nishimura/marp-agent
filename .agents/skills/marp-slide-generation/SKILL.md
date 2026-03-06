@@ -47,11 +47,13 @@ description: Generate, revise, validate, and visually review slide decks in this
 - For live editing and browser preview, prefer the repository helper instead of invoking Marp server flags manually.
 
 ```bash
-npm run slide -- decks/<name>/slide.md
-npm run slide -- decks/<name>/slide.md 12
+npm run preview -- decks/<name>/slide.md
+npm run preview -- decks/<name>/slide.md 12
+npm run preview:overview -- decks/<name>/slide.md
 ```
 
-- The optional page argument is the displayed pagination number. The helper maps it to the correct URL hash even when the deck uses `paginate: skip`.
+- The optional page argument is the displayed pagination number. Both preview helpers map it to the correct slide even when the deck uses `paginate: skip`.
+- Use `preview:overview` when you need a scrollable full-deck check without transition animation, especially for quick density and consistency review.
 
 ```bash
 ./node_modules/.bin/marp --allow-local-files --config-file marp.config.js decks/<name>/slide.md -o out/<name>.html
