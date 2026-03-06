@@ -19,43 +19,85 @@ function stripComments(raw) {
   return raw.replace(/<!--[\s\S]*?-->/g, "");
 }
 
+function stripNonContentBlocks(raw) {
+  return raw
+    .replace(/<style\b[\s\S]*?<\/style>/gi, "")
+    .replace(/<script\b[\s\S]*?<\/script>/gi, "")
+    .replace(
+      /<div\b[^>]*class=(["'])[^"']*\bfootnote(?:-col)?\b[^"']*\1[^>]*>[\s\S]*?<\/div>/gi,
+      "",
+    );
+}
+
 function getVisibleLines(raw) {
   const lines = [];
   let inCodeFence = false;
 
-  for (const originalLine of stripComments(raw).split(/\r?\n/)) {
-    const line = originalLine.trim();
-    if (line.startsWith("```")) {
+  for (const originalLine of stripNonContentBlocks(stripComments(raw)).split(
+    /\r?\n/,
+  )) {
+    const text = originalLine.trim();
+    if (text.startsWith("```")) {
       inCodeFence = !inCodeFence;
       continue;
     }
     if (inCodeFence) continue;
-    if (!line) continue;
-    lines.push(line);
+    if (!text) continue;
+    if (/^<\/?[^>]+>$/.test(text)) continue;
+    lines.push({
+      raw: originalLine,
+      text,
+    });
   }
 
   return lines;
 }
 
 function getHeading(lines) {
-  const heading = lines.find((line) => /^#{1,6}\s+/.test(line));
-  return heading ? heading.replace(/^#{1,6}\s+/, "").trim() : null;
+  const heading = lines.find((line) => /^#{1,6}\s+/.test(line.text));
+  return heading ? heading.text.replace(/^#{1,6}\s+/, "").trim() : null;
 }
 
-function countBullets(lines) {
-  return lines.filter((line) => /^(?:[-*+]\s+|\d+\.\s+)/.test(line)).length;
+function collectBulletMetrics(lines) {
+  let topLevel = 0;
+  let nested = 0;
+  let weighted = 0;
+
+  for (const line of lines) {
+    const match = line.raw.match(/^(\s*)(?:[-*+]\s+|\d+\.\s+)/);
+    if (!match) continue;
+
+    const depth = Math.floor(match[1].replace(/\t/g, "    ").length / 2);
+    if (depth === 0) {
+      topLevel += 1;
+      weighted += 1;
+    } else {
+      nested += 1;
+      weighted += 0.35;
+    }
+  }
+
+  return { topLevel, nested, weighted };
 }
 
 function countTinyTypography(raw) {
-  const classMatches = raw.match(/\btext-xs(?:2|3)?\b/g) || [];
+  const analysisRaw = stripNonContentBlocks(raw);
+  const classMatches =
+    analysisRaw.match(
+      /class\s*=\s*(["'])[^"']*\btext-xs(?:2|3)?\b[^"']*\1/gi,
+    ) || [];
   const inlineMatches =
-    raw.match(/font-size\s*:\s*(?:0\.[0-7]\d*|[1-9]\d?px)/gi) || [];
-  const smallTags = raw.match(/<small>/g) || [];
+    analysisRaw.match(
+      /style\s*=\s*(["'])[^"']*font-size\s*:\s*(?:0\.[0-7]\d*(?:em|rem)?|[1-9]\d?px)[^"']*\1/gi,
+    ) || [];
+  const smallTags = analysisRaw.match(/<small\b/gi) || [];
   return classMatches.length + inlineMatches.length + smallTags.length;
 }
 
 function detectTableMetrics(lines) {
-  const tableLines = lines.filter((line) => /^\|.*\|$/.test(line));
+  const tableLines = lines
+    .map((line) => line.text)
+    .filter((line) => /^\|.*\|$/.test(line));
   if (tableLines.length < 2) {
     return { columns: 0, rows: 0 };
   }
@@ -78,22 +120,36 @@ function buildFinding(slide, ruleId, severity, title, suggestion) {
   };
 }
 
+function getLayoutSignals(raw, lines) {
+  return {
+    isTitleSlide: /<!--\s*_class:\s*[^>]*\btitle\b/i.test(raw),
+    hasColumns: /class\s*=\s*(["'])[^"']*\bcol\b[^"']*\1/i.test(raw),
+    subheadingCount: lines.filter((line) => /^###\s+/.test(line.text)).length,
+  };
+}
+
 function lintSlide(slide) {
   const lines = getVisibleLines(slide.raw);
   const findings = [];
   const heading = getHeading(lines);
-  const bulletCount = countBullets(lines);
+  const bulletMetrics = collectBulletMetrics(lines);
+  const layout = getLayoutSignals(slide.raw, lines);
   const textLines = lines.filter(
     (line) =>
-      !/^(?:[-*+]\s+|\d+\.\s+|<[^>]+>|\|.*\|$)/.test(line) &&
-      !/^#{1,6}\s+/.test(line),
+      !/^(?:[-*+]\s+|\d+\.\s+|<[^>]+>|\|.*\|$)/.test(line.text) &&
+      !/^#{1,6}\s+/.test(line.text),
   );
   const figureCount = (
-    slide.raw.match(/!\[[^\]]*\]\([^)]+\)|<img\b|<figure\b|<video\b/gi) || []
+    stripNonContentBlocks(slide.raw).match(
+      /!\[[^\]]*\]\([^)]+\)|<img\b|<figure\b|<video\b/gi,
+    ) || []
   ).length;
   const tableMetrics = detectTableMetrics(lines);
   const tinyTypographyCount = countTinyTypography(slide.raw);
-  const totalChars = lines.join(" ").length;
+  const totalChars = lines
+    .filter((line) => !/^\|.*\|$/.test(line.text))
+    .map((line) => line.text.replace(/^(?:[-*+]\s+|\d+\.\s+)/, ""))
+    .join(" ").length;
 
   if (heading && heading.length > 48) {
     findings.push(
@@ -107,19 +163,33 @@ function lintSlide(slide) {
     );
   }
 
-  if (bulletCount >= 7) {
+  const denseBulletThreshold = layout.hasColumns ? 10.5 : 7;
+
+  if (
+    (!layout.hasColumns && bulletMetrics.topLevel >= 7) ||
+    bulletMetrics.weighted >= denseBulletThreshold
+  ) {
     findings.push(
       buildFinding(
         slide,
         "dense-bullets",
         "warning",
-        `Slide contains ${bulletCount} bullet items.`,
+        `Slide contains ${bulletMetrics.topLevel} top-level bullets (${bulletMetrics.weighted.toFixed(1)} weighted).`,
         "Split the list into multiple slides or group the bullets into a smaller number of takeaways.",
       ),
     );
   }
 
-  if (figureCount > 0 && (bulletCount >= 4 || textLines.length >= 4)) {
+  const figureTextThresholds = layout.hasColumns
+    ? { bullets: 10.5, textLines: 8, chars: 520 }
+    : { bullets: 4, textLines: 4, chars: 320 };
+
+  if (
+    figureCount > 0 &&
+    (bulletMetrics.weighted >= figureTextThresholds.bullets ||
+      textLines.length >= figureTextThresholds.textLines ||
+      totalChars >= figureTextThresholds.chars)
+  ) {
     findings.push(
       buildFinding(
         slide,
@@ -133,7 +203,10 @@ function lintSlide(slide) {
 
   if (
     (tableMetrics.columns >= 5 && tableMetrics.rows >= 3) ||
-    (slide.raw.includes('class="col"') && bulletCount >= 6)
+    (layout.hasColumns &&
+      layout.subheadingCount >= 3 &&
+      bulletMetrics.weighted >= 11 &&
+      totalChars >= 360)
   ) {
     findings.push(
       buildFinding(
@@ -158,14 +231,18 @@ function lintSlide(slide) {
     );
   }
 
-  const hasVeryLongBodyLine = textLines.some((line) => line.length >= 140);
+  const hasVeryLongBodyLine = textLines.some((line) => line.text.length >= 140);
+  const overflowThresholds = layout.hasColumns
+    ? { bullets: 12.5, textLines: 10, chars: 520 }
+    : { bullets: 10, textLines: 8, chars: 360 };
 
   if (
-    bulletCount >= 9 ||
-    textLines.length >= 7 ||
-    totalChars >= 320 ||
-    (heading && heading.length >= 70) ||
-    hasVeryLongBodyLine
+    !layout.isTitleSlide &&
+    (bulletMetrics.weighted >= overflowThresholds.bullets ||
+      textLines.length >= overflowThresholds.textLines ||
+      totalChars >= overflowThresholds.chars ||
+      (heading && heading.length >= 70) ||
+      hasVeryLongBodyLine)
   ) {
     findings.push(
       buildFinding(

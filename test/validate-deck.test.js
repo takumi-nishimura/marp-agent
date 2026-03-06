@@ -61,6 +61,27 @@ test("validator flags comparison density", () => {
   );
 });
 
+test("validator ignores helper CSS and footnotes in balanced column layouts", () => {
+  const markdown = fs.readFileSync(fixture("layout-balanced-slide.md"), "utf8");
+  const result = validateDeckMarkdown(markdown);
+
+  assert.equal(result.findings.length, 0);
+});
+
+test("validator skips overflow heuristics on title slides", () => {
+  const markdown = fs.readFileSync(fixture("title-slide.md"), "utf8");
+  const result = validateDeckMarkdown(markdown);
+
+  assert.equal(
+    result.findings.some((finding) => finding.ruleId === "overflow-risk"),
+    false,
+  );
+  assert.equal(
+    result.findings.some((finding) => finding.ruleId === "typography-drift"),
+    false,
+  );
+});
+
 test("validator writes report artifacts and uses injected screenshot exporter", () => {
   const reportDir = fs.mkdtempSync(
     path.join(os.tmpdir(), "marp-agent-report-"),
