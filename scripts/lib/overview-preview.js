@@ -308,8 +308,6 @@ function buildOverviewDocument(renderedHtml, { reloadToken, targetSlideId }) {
     </main>
     <script>
       (() => {
-        const reloadUrl = "/__marp_agent__/meta";
-        const reloadToken = document.body.dataset.reloadToken;
         const targetSlideId = document.body.dataset.targetSlide;
 
         function fitViewport(viewport) {
@@ -343,7 +341,7 @@ function buildOverviewDocument(renderedHtml, { reloadToken, targetSlideId }) {
           const escapedSlideId =
             typeof CSS !== "undefined" && typeof CSS.escape === "function"
               ? CSS.escape(targetSlideId)
-              : targetSlideId.replace(/["\\]/g, "\\$&");
+              : targetSlideId.replace(/["\\\\]/g, "\\\\$&");
           const target = document.querySelector(
             \`.marp-agent-overview__card[data-slide-id="\${escapedSlideId}"]\`,
           );
@@ -355,55 +353,7 @@ function buildOverviewDocument(renderedHtml, { reloadToken, targetSlideId }) {
           }
         }
 
-        function connectLiveReload() {
-          const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
-          const wsUrl = \`\${wsProtocol}//\${location.host}/__marp_agent__/ws\`;
-
-          try {
-            const ws = new WebSocket(wsUrl);
-
-            ws.addEventListener("message", (event) => {
-              try {
-                const data = JSON.parse(event.data);
-                if (data.type === "reload") {
-                  window.location.reload();
-                }
-              } catch {
-                // Ignore malformed messages.
-              }
-            });
-
-            ws.addEventListener("close", () => {
-              setTimeout(connectLiveReload, 1000);
-            });
-
-            ws.addEventListener("error", () => {
-              ws.close();
-            });
-          } catch {
-            // WebSocket unavailable; fall back to polling.
-            startPolling();
-          }
-        }
-
-        async function pollForReload() {
-          try {
-            const response = await fetch(reloadUrl, { cache: "no-store" });
-            const payload = await response.json();
-
-            if (payload.token !== reloadToken) {
-              window.location.reload();
-            }
-          } catch (error) {
-            // Ignore temporary reload polling failures.
-          }
-        }
-
-        function startPolling() {
-          window.setInterval(pollForReload, 500);
-        }
-
-        connectLiveReload();
+        ${buildReloadScript("/__marp_agent__/meta")}
       })();
     </script>
   </body>
@@ -460,7 +410,18 @@ function buildWaitingDocument(deckName, reloadToken) {
     </main>
     <script>
       (() => {
+        ${buildReloadScript("/__marp_agent__/meta")}
+      })();
+    </script>
+  </body>
+</html>`;
+}
+
+function buildReloadScript(metaUrl) {
+  return `
         const reloadToken = document.body.dataset.reloadToken;
+        let wsRetries = 0;
+        const maxWsRetries = 5;
 
         function connectLiveReload() {
           const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
@@ -468,6 +429,8 @@ function buildWaitingDocument(deckName, reloadToken) {
 
           try {
             const ws = new WebSocket(wsUrl);
+
+            ws.addEventListener("open", () => { wsRetries = 0; });
 
             ws.addEventListener("message", (event) => {
               try {
@@ -481,6 +444,11 @@ function buildWaitingDocument(deckName, reloadToken) {
             });
 
             ws.addEventListener("close", () => {
+              wsRetries++;
+              if (wsRetries >= maxWsRetries) {
+                startPolling();
+                return;
+              }
               setTimeout(connectLiveReload, 1000);
             });
 
@@ -494,15 +462,13 @@ function buildWaitingDocument(deckName, reloadToken) {
 
         async function pollForReload() {
           try {
-            const response = await fetch("/__marp_agent__/meta", {
-              cache: "no-store",
-            });
+            const response = await fetch("${metaUrl}", { cache: "no-store" });
             const payload = await response.json();
 
             if (payload.token !== reloadToken) {
               window.location.reload();
             }
-          } catch (error) {
+          } catch {
             // Ignore temporary reload polling failures.
           }
         }
@@ -511,11 +477,7 @@ function buildWaitingDocument(deckName, reloadToken) {
           window.setInterval(pollForReload, 500);
         }
 
-        connectLiveReload();
-      })();
-    </script>
-  </body>
-</html>`;
+        connectLiveReload();`;
 }
 
 function escapeHtml(value) {
@@ -529,6 +491,7 @@ function escapeHtml(value) {
 
 module.exports = {
   buildOverviewDocument,
+  buildReloadScript,
   buildWaitingDocument,
   extractSlides,
   getOverviewOutputPath,

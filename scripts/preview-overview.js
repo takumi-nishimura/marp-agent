@@ -157,6 +157,7 @@ function resolveStaticPath(deckDir, requestPath) {
 
 function createServer({ deckDir, deckPath, outputPath, targetSlideId }) {
   const wsClients = new Set();
+  let lastToken = getReloadToken(outputPath);
 
   const server = http.createServer((request, response) => {
     const requestUrl = new URL(request.url || "/", "http://127.0.0.1");
@@ -214,13 +215,25 @@ function createServer({ deckDir, deckPath, outputPath, targetSlideId }) {
     wsClients.add(ws);
     ws.on("close", () => wsClients.delete(ws));
     ws.on("error", () => wsClients.delete(ws));
-  });
 
-  let lastToken = getReloadToken(outputPath);
+    // If the file changed before this client connected (e.g. the initial
+    // render completed before the browser's WebSocket was ready), notify
+    // the new client immediately so the waiting page transitions.
+    const currentToken = getReloadToken(outputPath);
+    if (currentToken !== lastToken) {
+      lastToken = currentToken;
+      sendWebSocketMessage(ws, JSON.stringify({ type: "reload" }));
+    }
+  });
 
   function notifyClients() {
     const currentToken = getReloadToken(outputPath);
     if (currentToken === lastToken) return;
+    // Only advance lastToken when there are connected clients.  If no
+    // clients are present the stale token is kept so that the next client
+    // to connect will see the mismatch in the upgrade handler and get an
+    // immediate reload notification.
+    if (wsClients.size === 0) return;
     lastToken = currentToken;
 
     for (const client of wsClients) {
@@ -229,24 +242,31 @@ function createServer({ deckDir, deckPath, outputPath, targetSlideId }) {
   }
 
   let watcher = null;
+  let debounceTimer = null;
 
   try {
-    watcher = fs.watch(path.dirname(outputPath), (_, filename) => {
-      if (filename === path.basename(outputPath)) {
-        setTimeout(notifyClients, 50);
+    const targetBasename = path.basename(outputPath);
+    watcher = fs.watch(path.dirname(outputPath), (_event, filename) => {
+      // filename can be null on some platforms; notify unconditionally in that
+      // case so the token-based check inside notifyClients decides.
+      if (filename == null || filename === targetBasename) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(notifyClients, 50);
       }
     });
   } catch {
     // Fallback: clients will still use polling if fs.watch is unavailable.
   }
 
-  server.on("close", () => {
+  const originalClose = server.close.bind(server);
+  server.close = function close(callback) {
     watcher?.close();
     for (const client of wsClients) {
       client.destroy();
     }
     wsClients.clear();
-  });
+    return originalClose(callback);
+  };
 
   return server;
 }
@@ -320,9 +340,19 @@ function main() {
       `http://127.0.0.1:${address.port}`,
       targetSlideId,
     );
-    const browser = openBrowser(url);
-    browser?.unref();
-    process.stdout.write(`[preview:overview] Opened ${url}\n`);
+
+    // Wait for the first render before opening the browser so the user
+    // sees the overview immediately instead of a "Rendering…" splash.
+    function tryOpen() {
+      if (fs.existsSync(outputPath)) {
+        const browser = openBrowser(url);
+        browser?.unref();
+        process.stdout.write(`[preview:overview] Opened ${url}\n`);
+        return;
+      }
+      setTimeout(tryOpen, 50);
+    }
+    tryOpen();
   });
 
   child.on("exit", (code, signal) => {
@@ -338,4 +368,12 @@ function main() {
   });
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  acceptWebSocket,
+  createServer,
+  sendWebSocketMessage,
+};
