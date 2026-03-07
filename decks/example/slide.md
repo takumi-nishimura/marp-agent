@@ -66,6 +66,8 @@ Markdown の手軽さを活かしつつ, 品質を担保したい
 
 **構造化ワークフロー** + **自動バリデーション** + **カスタムテーマ**
 
+<div style="width: 90%">
+
 ```mermaid
 graph LR
     A[brief.md] -->|設計| B[outline.md]
@@ -74,6 +76,8 @@ graph LR
     C --> E[PDF]
     C --> F[PPTX]
 ```
+
+</div>
 
 brief → outline → slide の **3 段階**で, 設計から成果物まで一気通貫
 
