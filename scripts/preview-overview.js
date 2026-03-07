@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
@@ -64,6 +65,46 @@ function sendText(response, statusCode, message) {
   response.end(message);
 }
 
+function acceptWebSocket(request, socket) {
+  const key = request.headers["sec-websocket-key"];
+  if (!key) {
+    socket.destroy();
+    return null;
+  }
+
+  const accept = crypto
+    .createHash("sha1")
+    .update(key + "258EAFA5-E914-47DA-95CA-5AB9FFC115E3")
+    .digest("base64");
+
+  socket.write(
+    "HTTP/1.1 101 Switching Protocols\r\n" +
+      "Upgrade: websocket\r\n" +
+      "Connection: Upgrade\r\n" +
+      `Sec-WebSocket-Accept: ${accept}\r\n` +
+      "\r\n",
+  );
+
+  return socket;
+}
+
+function sendWebSocketMessage(socket, message) {
+  const payload = Buffer.from(message, "utf8");
+  const header = [0x81]; // FIN + text opcode
+
+  if (payload.length < 126) {
+    header.push(payload.length);
+  } else if (payload.length < 65536) {
+    header.push(126, (payload.length >> 8) & 0xff, payload.length & 0xff);
+  }
+
+  try {
+    socket.write(Buffer.concat([Buffer.from(header), payload]));
+  } catch {
+    // Client disconnected.
+  }
+}
+
 function getMimeType(filePath) {
   const extension = path.extname(filePath).toLowerCase();
 
@@ -115,7 +156,9 @@ function resolveStaticPath(deckDir, requestPath) {
 }
 
 function createServer({ deckDir, deckPath, outputPath, targetSlideId }) {
-  return http.createServer((request, response) => {
+  const wsClients = new Set();
+
+  const server = http.createServer((request, response) => {
     const requestUrl = new URL(request.url || "/", "http://127.0.0.1");
 
     if (requestUrl.pathname === "/__marp_agent__/meta") {
@@ -157,6 +200,55 @@ function createServer({ deckDir, deckPath, outputPath, targetSlideId }) {
     });
     fs.createReadStream(filePath).pipe(response);
   });
+
+  server.on("upgrade", (request, socket) => {
+    const requestUrl = new URL(request.url || "/", "http://127.0.0.1");
+    if (requestUrl.pathname !== "/__marp_agent__/ws") {
+      socket.destroy();
+      return;
+    }
+
+    const ws = acceptWebSocket(request, socket);
+    if (!ws) return;
+
+    wsClients.add(ws);
+    ws.on("close", () => wsClients.delete(ws));
+    ws.on("error", () => wsClients.delete(ws));
+  });
+
+  let lastToken = getReloadToken(outputPath);
+
+  function notifyClients() {
+    const currentToken = getReloadToken(outputPath);
+    if (currentToken === lastToken) return;
+    lastToken = currentToken;
+
+    for (const client of wsClients) {
+      sendWebSocketMessage(client, JSON.stringify({ type: "reload" }));
+    }
+  }
+
+  let watcher = null;
+
+  try {
+    watcher = fs.watch(path.dirname(outputPath), (_, filename) => {
+      if (filename === path.basename(outputPath)) {
+        setTimeout(notifyClients, 50);
+      }
+    });
+  } catch {
+    // Fallback: clients will still use polling if fs.watch is unavailable.
+  }
+
+  server.on("close", () => {
+    watcher?.close();
+    for (const client of wsClients) {
+      client.destroy();
+    }
+    wsClients.clear();
+  });
+
+  return server;
 }
 
 function main() {
@@ -210,7 +302,12 @@ function main() {
   forwardLines(child.stderr, process.stderr);
   forwardChildSignals(child);
 
-  const server = createServer({ deckDir, deckPath, outputPath, targetSlideId });
+  const server = createServer({
+    deckDir,
+    deckPath,
+    outputPath,
+    targetSlideId,
+  });
 
   server.listen(0, "127.0.0.1", () => {
     const address = server.address();

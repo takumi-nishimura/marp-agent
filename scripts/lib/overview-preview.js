@@ -355,6 +355,37 @@ function buildOverviewDocument(renderedHtml, { reloadToken, targetSlideId }) {
           }
         }
 
+        function connectLiveReload() {
+          const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+          const wsUrl = \`\${wsProtocol}//\${location.host}/__marp_agent__/ws\`;
+
+          try {
+            const ws = new WebSocket(wsUrl);
+
+            ws.addEventListener("message", (event) => {
+              try {
+                const data = JSON.parse(event.data);
+                if (data.type === "reload") {
+                  window.location.reload();
+                }
+              } catch {
+                // Ignore malformed messages.
+              }
+            });
+
+            ws.addEventListener("close", () => {
+              setTimeout(connectLiveReload, 1000);
+            });
+
+            ws.addEventListener("error", () => {
+              ws.close();
+            });
+          } catch {
+            // WebSocket unavailable; fall back to polling.
+            startPolling();
+          }
+        }
+
         async function pollForReload() {
           try {
             const response = await fetch(reloadUrl, { cache: "no-store" });
@@ -368,7 +399,11 @@ function buildOverviewDocument(renderedHtml, { reloadToken, targetSlideId }) {
           }
         }
 
-        window.setInterval(pollForReload, 500);
+        function startPolling() {
+          window.setInterval(pollForReload, 500);
+        }
+
+        connectLiveReload();
       })();
     </script>
   </body>
@@ -427,6 +462,36 @@ function buildWaitingDocument(deckName, reloadToken) {
       (() => {
         const reloadToken = document.body.dataset.reloadToken;
 
+        function connectLiveReload() {
+          const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+          const wsUrl = \`\${wsProtocol}//\${location.host}/__marp_agent__/ws\`;
+
+          try {
+            const ws = new WebSocket(wsUrl);
+
+            ws.addEventListener("message", (event) => {
+              try {
+                const data = JSON.parse(event.data);
+                if (data.type === "reload") {
+                  window.location.reload();
+                }
+              } catch {
+                // Ignore malformed messages.
+              }
+            });
+
+            ws.addEventListener("close", () => {
+              setTimeout(connectLiveReload, 1000);
+            });
+
+            ws.addEventListener("error", () => {
+              ws.close();
+            });
+          } catch {
+            startPolling();
+          }
+        }
+
         async function pollForReload() {
           try {
             const response = await fetch("/__marp_agent__/meta", {
@@ -442,7 +507,11 @@ function buildWaitingDocument(deckName, reloadToken) {
           }
         }
 
-        window.setInterval(pollForReload, 500);
+        function startPolling() {
+          window.setInterval(pollForReload, 500);
+        }
+
+        connectLiveReload();
       })();
     </script>
   </body>
