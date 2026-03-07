@@ -13,461 +13,439 @@ style: |
 
 <!-- _paginate: skip -->
 <!-- _class: title -->
-<!-- _header: 2026-01-01 -->
+<!-- _header: 2026-03-07 -->
 
-# Marp Slide Guide
+# marp-agent
 
 <div class="info">
 
-Lab Slide Template
+Marp + AI で作る構造化スライド制作
 
 </div>
 
 ---
 
-<!-- _header: Slide Classes -->
+<!-- _header: marp-agent -->
 
-## Basic Classes
-
-- `.title` - Title slide with centered heading
-- `.invert` - Dark mode (inverts colors)
-- `.col` - Two-column layout
-- `.fit` - Fit content to slide
-
-```markdown
-<!-- _class: title -->       # Title slide
-<!-- _class: invert -->      # Dark mode
-<!-- _class: title invert --> # Title slide with dark mode
-```
-
----
-
-<!-- _header: Text Emphasis -->
-
-## Emphasis Styles
-
-- _Italic with underline_ - `*text*` or `_text_`
-- **Bold with color** - `**text**` or `__text__`
-- ==Highlighted text== - `==text==`
-
-### Usage
-
-```markdown
-This is _emphasized_ text with underline.
-This is **strong** text with yellow color.
-This is ==marked== text with background.
-```
-
----
-
-<!-- _header: Lists -->
-
-## Unordered List
-
-- Item 1
-  - Nested item 1.1
-  - Nested item 1.2
-- Item 2
-- Item 3
-
----
-
-<!-- _header: Lists -->
-
-## Ordered List
-
-1. First item
-   1. Nested 1.1
-   2. Nested 1.2
-2. Second item
-3. Third item
-
----
-
-<!-- _header: Text Sizes -->
-
-## Display Size Classes
-
-- `text-xl5` - 3em
-- `text-xl4` - 2.25em
-- `text-xl3` - 1.875em
-- `text-xl2` - 1.5em
-- `text-xl` - 1.25em
-
----
-
-<!-- _header: Text Sizes -->
-
-## Body Size Classes
-
-- `text-lg` - 1.125em
-- `default` - 1em
-- `text-sm` - 0.875em
-
-Split content before reducing type.
-
----
-
-<!-- _header: Colors -->
-
-## Neutral and Warm Colors
-
-<span class="white bg-gray-800 px-2">white</span>
-<span class="black">black</span>
-<span class="gray">gray</span>
-<span class="red">red</span>
-<span class="orange">orange</span>
-<span class="yellow">yellow</span>
-
----
-
-<!-- _header: Colors -->
-
-## Cool and Accent Colors
-
-<span class="green">green</span>
-<span class="cyan">cyan</span>
-<span class="blue">blue</span>
-<span class="purple">purple</span>
-<span class="pink">pink</span>
-
-### Usage
-
-```markdown
-<span class="red">Red text</span>
-<span class="blue">Blue text</span>
-```
-
----
-
-<!-- _header: Two-Column Layout -->
-
-## Column Layout
+## Marp とは? & その課題
 
 <div class="col">
 <div>
 
-### Left Column
+**Marp の良いところ**
 
-Content for the left side.
-
-- Point 1
-- Point 2
+- Markdown でスライドを書ける
+- `---` でページを区切るだけ
+- HTML/PDF/PPTX に出力可能
+- VS Code 拡張や CLI で使える OSS
 
 </div>
 <div>
 
-### Right Column
+**よくある課題**
 
-Content for the right side.
-
-1. Step 1
-2. Step 2
+- 自由すぎて**構造が崩れやすい**
+- テキスト詰め込みで**読めないスライド**に
+- テーマのカスタマイズが**CSS 直書き**
+- レビューの基準が**属人的**
 
 </div>
 </div>
 
-```html
-<div class="col">
-  <div>Left content</div>
-  <div>Right content</div>
+<div class="important">
+
+Markdown の手軽さを活かしつつ, 品質を担保したい
+
 </div>
-```
 
 ---
 
-<!-- _header: Callout Boxes -->
+<!-- _header: marp-agent -->
 
-## Informational Callouts
+## marp-agent のアプローチ
+
+**構造化ワークフロー** + **自動バリデーション** + **カスタムテーマ**
+
+```mermaid
+graph LR
+    A[brief.md] -->|設計| B[outline.md]
+    B -->|構成| C[slide.md]
+    C --> D[HTML]
+    C --> E[PDF]
+    C --> F[PPTX]
+```
+
+brief → outline → slide の **3 段階**で, 設計から成果物まで一気通貫
+
+---
+
+<!-- _header: Workflow -->
+
+## Step 1: デッキの作成
+
+```bash
+npm run new decks/my-talk
+```
+
+生成されるファイル構成:
+
+```
+decks/my-talk/
+├── brief.md        # プレゼンの設計書
+├── slide.md        # スライド本体
+├── assets/img/     # 画像置き場
+├── assets/video/   # 動画置き場
+└── shared -> ../../assets  # 共有アセット
+```
+
+<div class="tip">
+
+ロゴやフォントなど共有アセットは `shared/` シンボリックリンクで参照
+
+</div>
+
+---
+
+<!-- _header: Workflow -->
+
+## Step 2: brief.md を書く
+
+<div class="col">
+<div>
+
+```markdown
+## Audience
+
+- Primary audience: 研究室の学生
+- Existing knowledge: Markdown の基本
+
+## Duration
+
+- Total talk length: 10 min
+- Target slide count: 12
+
+## Core Message
+
+- One-sentence takeaway:
+  marp-agent で効率的にスライドを作れる
+```
+
+</div>
+<div>
+
+**brief.md の 8 項目**
+
+1. Audience (聴衆)
+2. Duration (時間)
+3. Core Message (主張)
+4. Audience Action (行動)
+5. Required Sections (必須章)
+6. Must-Use Assets (必須素材)
+7. Forbidden Patterns (禁止事項)
+8. References (参考文献)
+
+</div>
+</div>
+
+---
+
+<!-- _header: Workflow -->
+
+## Step 3: アウトライン生成
+
+```bash
+npm run outline -- decks/my-talk/brief.md
+```
+
+brief.md をパースし, 自動で `outline.md` を生成:
+
+| 生成されるスライド | 内容                            |
+| :----------------- | :------------------------------ |
+| Opening promise    | 聴衆の関心を引く冒頭            |
+| Agenda             | セクション一覧 (3 つ以上の場合) |
+| Required Sections  | brief で定義した各章            |
+| Close              | まとめ & CTA                    |
+
+各スライドに **Title / Takeaway / Layout hint / Overflow risk** を付与
+
+---
+
+<!-- _header: Workflow -->
+
+## Step 4: スライド執筆 & バリデーション
+
+<div class="col">
+<div>
+
+```bash
+# バリデーション
+npm run deck:validate \
+  -- decks/my-talk/slide.md
+
+# レポート付き
+npm run deck:validate \
+  -- decks/my-talk/slide.md \
+  --report-dir out/my-talk
+```
+
+</div>
+<div>
+
+**レポートの出力内容**
+
+- `report.md` - 人間が読めるレポート
+- `report.json` - 機械処理用データ
+- `screenshots/` - 全スライドの PNG
+
+スライド単位で問題箇所を特定できる
+
+</div>
+</div>
+
+<div class="tip">
+
+AI エージェントとの組み合わせ: バリデータの結果を元に自動でスライドを修正するワークフローも構築可能
+
+</div>
+
+---
+
+<!-- _header: Validator -->
+
+## バリデータの検査ルール
+
+| ルール                  | 検出内容               | 閾値例            |
+| :---------------------- | :--------------------- | :---------------- |
+| `long-heading`          | 見出しが長すぎる       | 48 文字超         |
+| `dense-bullets`         | 箇条書きが多すぎる     | 7 個以上          |
+| `figure-text-density`   | 画像+テキストの過密    | 画像横に 4 行以上 |
+| `comparison-overpacked` | 比較スライドの詰め込み | 5 列 3 行以上     |
+| `typography-drift`      | 極小フォントの使用     | text-xs 系の検出  |
+| `overflow-risk`         | 総合的なはみ出し危険度 | 360 文字超        |
+
+<div class="warning" style="margin-top: -1em;">
+
+"Split dense material instead of shrinking text" が基本方針
+
+</div>
+
+---
+
+<!-- _header: Validator -->
+
+## バリデータが防ぐもの
+
+<div class="col">
+<div>
+
+**Before (検出される例)**
+
+- 箇条書き 10 個以上
+- 画像の横にテキスト密集
+- `text-xs` で無理やり詰め込み
+- 見出しが 2 行にまたがる
+
+</div>
+<div>
+
+**After (修正後)**
+
+- 1 スライド 1 メッセージ
+- 図とテキストを分離
+- 適切なフォントサイズ
+- 簡潔な見出し
+
+</div>
+</div>
+
+<div class="important">
+
+バリデータは**ガードレール**: 詰め込みを検出し, スライド分割を促す
+
+</div>
+
+---
+
+<!-- _header: Theme -->
+
+## lab テーマの特徴
+
+<div class="col" style="gap: 0.5rem;">
+<div style="flex: 1.3;">
+
+**Tailwind CSS v4 ベース**
+
+- **レイアウト**: `.col`, `.center-body-stack`, `.fit`
+- **タイポグラフィ**: `.text-xs3` ~ `.text-xl5`
+- **レーザーポインター**: プレゼン時にカーソルが光る
+
+**5 種のカラースキーム**
+
+- Dracula
+- One Dark Pro
+- Nord
+- Neogaia
+- GitHub Light
+
+</div>
+<div>
+
+**5 種のコールアウト**
 
 <div class="note">
 
-**Note**: General information or tips.
+`.note` - 情報の補足
 
 </div>
 
 <div class="tip">
 
-**Tip**: Helpful suggestions.
+`.tip` - 便利な Tips
 
 </div>
-
----
-
-<!-- _header: Callout Boxes -->
-
-## Cautionary Callouts
 
 <div class="warning">
 
-**Warning**: Important caution.
+`.warning` / `.caution` - 注意・警告
 
 </div>
 
-<div class="caution">
-
-**Caution**: Potential issues.
-
+</div>
 </div>
 
-<div class="important">
+---
 
-**Important**: Critical information.
+<!-- _header: Theme -->
+
+## Mermaid 図の日本語対応
+
+標準の mermaid.js は foreignObject 内でフォント幅を誤検出し, **日本語ラベルがはみ出す**問題がある. marp-agent は **beautiful-mermaid** で DOM-free SVG レンダリングを行い, これを解決
+
+```mermaid
+graph LR
+    A["$x$"] -->|重み| B["$\sum w_i x_i + b$"]
+    B --> C[活性化関数]
+    C --> D["$\hat{y}$"]
+```
+
+<div class="tip">
+
+Mermaid ノード内で MathJax 数式 (`$...$`) も使用可能. 日本語ラベルとの共存も OK
 
 </div>
 
 ---
 
-<!-- _header: Figures -->
+<!-- _header: Features -->
 
-## Figure Width Classes
+## プレビュー & プラグイン
 
 <div class="col">
 <div>
 
-```html
-<figure class="w-full">
-  <img src="..." />
-  <figcaption>Full width</figcaption>
-</figure>
+**プレビュー** - Playwright で自動表示
+
+```bash
+npm run preview -- deck.md
+npm run preview:overview -- deck.md
 ```
 
-Available classes:
+**hide-slides-plugin**
 
-Use `.w-full`, `.w-3/4`, `.w-1/2`, `.w-1/3`, or `.w-1/4`.
+`<!-- hide: true -->` で非表示に
+
+**mermaid-plugin**
+
+Mermaid 記法を直接レンダリング
 
 </div>
 <div>
 
-<figure class="w-3/4">
-<img src="shared/img/fig.png" />
-<figcaption>w-3/4 example</figcaption>
-</figure>
+![w:560](assets/img/overview_mode.png)
 
 </div>
 </div>
 
 ---
 
-<!-- _header: Info Block -->
+<!-- _header: Features -->
 
-## Info Block for Title Slides
-
-Use `.info` class for author/affiliation info:
-
-```html
-<div class="info">Affiliation: Department Name: Author Name</div>
-```
-
-This creates right-aligned text suitable for title slides.
-
----
-
-<!-- _header: Color Schemes -->
-
-## Dark Color Schemes
-
-- `.neogaia` - Dark default
-- `.dracula` - Purple accent
-- `.one-dark` - Blue accent
-- `.nord` - Cyan accent
-
-Dark themes automatically switch to inverted logos.
-
----
-
-<!-- _header: Color Schemes -->
-
-## Light Color Schemes
-
-- `.neogaia.invert` - Light variant
-- `.github-light` - Light canvas
-
----
-
-<!-- _class: dracula -->
-<!-- _header: Dracula Theme -->
-
-## Dracula Color Scheme
-
-This slide uses the **Dracula** color scheme.
-
-- Dark purple background
-- Light text
-- Purple accent color
-
-```markdown
-<!-- _class: dracula -->
-```
-
----
-
-<!-- _class: one-dark -->
-<!-- _header: One Dark Theme -->
-
-## One Dark Color Scheme
-
-This slide uses the **One Dark** color scheme.
-
-- Dark gray background
-- Muted text colors
-- Blue accent color
-
-```markdown
-<!-- _class: one-dark -->
-```
-
----
-
-<!-- _class: nord -->
-<!-- _header: Nord Theme -->
-
-## Nord Color Scheme
-
-This slide uses the **Nord** color scheme.
-
-- Arctic blue background
-- Light text
-- Cyan accent color
-
-```markdown
-<!-- _class: nord -->
-```
-
----
-
-<!-- _class: github-light -->
-<!-- _header: GitHub Light Theme -->
-
-## GitHub Light Color Scheme
-
-This slide uses the **GitHub Light** color scheme.
-
-- White background
-- Dark text
-- Blue accent color
-
-```markdown
-<!-- _class: github-light -->
-```
-
----
-
-<!-- _class: neogaia -->
-<!-- _header: Neogaia Theme (Dark) -->
-
-## Neogaia Color Scheme
-
-This slide uses the **Neogaia** color scheme (dark mode by default).
-
-- Dark blue-gray background
-- Warm white text
-- _Yellow emphasis_ and **strong text**
-
-```markdown
-<!-- _class: neogaia -->
-```
-
----
-
-<!-- _class: neogaia invert -->
-<!-- _header: Neogaia Theme (Light) -->
-
-## Neogaia Light Mode
-
-This slide uses the **Neogaia** color scheme with `.invert` (light mode).
-
-- Warm white background
-- Dark text
-- _Darker emphasis_ for visibility
-
-```markdown
-<!-- _class: neogaia invert -->
-```
-
----
-
-<!-- _header: Mermaid Diagrams -->
-
-## Flowchart
-
-```mermaid
-graph LR
-  A[Start] --> B{Decision}
-  B -->|Yes| C[Process]
-  B -->|No| D[Skip]
-  C --> E[End]
-  D --> E
-```
-
----
-
-<!-- _header: Mermaid Diagrams -->
-
-## Sequence Diagram
-
-```mermaid
-sequenceDiagram
-  Client ->> Server: Request
-  Server ->> DB: Query
-  DB -->> Server: Result
-  Server -->> Client: Response
-```
-
----
-
-<!-- _header: Mermaid Diagrams -->
-
-## State Diagram
-
-```mermaid
-stateDiagram-v2
-  [*] --> Idle
-  Idle --> Processing: submit
-  Processing --> Success: ok
-  Processing --> Error: fail
-  Error --> Idle: retry
-  Success --> [*]
-```
-
----
-
-<!-- _header: Mermaid Diagrams -->
-
-## CJK & Math in Diagrams
+## レーザーポインター
 
 <div class="col">
-<div style="width: 500px;">
+<div>
 
-```mermaid
-graph LR
-  A[開始] --> B{判定}
-  B -->|はい| C[処理]
-  B -->|いいえ| D[終了]
+プレゼン時にマウスカーソルが**光るレーザーポインター**に変わる
+
+- オレンジ色のグロー効果
+- 一定時間操作しないと自動で非表示
+- CSS 変数でカスタマイズ可能
+
+```css
+section {
+  --bespoke-marp-cursor-color: #ff5c31;
+  --bespoke-marp-cursor-size: 10px;
+  --bespoke-marp-cursor-idle: 0.75s;
+}
 ```
 
 </div>
 <div>
 
-```mermaid
-graph LR
-  A["$x_0$"] --> B["$f(x) = x^2$"]
-  B --> C["$$E = mc^2$$"]
-```
+![w:650](assets/img/laser-pointer-demo.png)
 
 </div>
+</div>
+
+---
+
+<!-- _header: Commands -->
+
+## コマンド一覧
+
+| コマンド                              | 説明                       |
+| :------------------------------------ | :------------------------- |
+| `npm run new <path>`                  | デッキ作成 (scaffold)      |
+| `npm run outline -- <brief>`          | brief からアウトライン生成 |
+| `npm run deck:validate -- <slide>`    | スライドバリデーション     |
+| `npm run theme:build`                 | Tailwind テーマビルド      |
+| `npm run dev:theme`                   | テーマのウォッチビルド     |
+| `npm run preview -- <slide>`          | 個別スライドプレビュー     |
+| `npm run preview:overview -- <slide>` | サムネイル一覧プレビュー   |
+
+---
+
+<!-- _header: marp-agent -->
+
+## まとめ
+
+1. **brief.md** でプレゼンの目的と制約を定義
+2. **outline.md** で構成を自動生成
+3. **slide.md** を執筆し, バリデータで品質チェック
+4. カスタム**テーマ**と**プラグイン**でリッチな表現
+
+<div class="tip">
+
+"構造化" × "自動検証" で, 誰でも読みやすいスライドを作れる
+
+</div>
+
+<div class="note">
+
+このスライド自体も marp-agent で作成・バリデーション済みです
+
 </div>
 
 ---
 
 <!-- _paginate: skip -->
-<!-- _class: title invert -->
-<!-- _header: 2026-02-02 -->
+<!-- _class: title -->
 
-# Thank You
+# Thank you!
 
 <div class="info">
 
-Questions?
+marp-agent
+[github.com/takumi-nishimura/marp-agent](https://github.com/takumi-nishimura/marp-agent)
 
 </div>

@@ -30,6 +30,7 @@ section {
   --padding-top: 0;
   --padding-x: 40px;
   --padding-bottom: 0;
+  --header-height: 60px;
 
   /* Logo dimensions and spacing */
   --logo-title-size: 80px;
@@ -226,7 +227,7 @@ section:not(.title) header {
   font-size: 1rem;
   font-weight: 600;
 
-  height: 60px;
+  height: var(--header-height);
   padding-top: 10px;
   padding-bottom: 10px;
 
@@ -272,4 +273,3 @@ th {
 tbody tr:nth-child(even) {
   background: #fafafa;
 }
-
