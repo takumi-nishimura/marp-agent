@@ -16,6 +16,7 @@ dist
 
 .env
 .obsidian
+assets/logos/haptics_lab/
 
 
 # Playwright test artifacts
