@@ -7,8 +7,8 @@ section {
   /* Accent color for gradients - overridden by color schemes */
   --highlight: #0969da;
 
-  /* Gradient mid color: based on highlight with transparency */
-  --gradient-mid: color-mix(in srgb, var(--highlight) 40%, transparent);
+  /* Gradient mid color: avoid transparency to keep PDF rendering stable across engines */
+  --gradient-mid: color-mix(in srgb, var(--highlight) 40%, var(--bg));
 
   /* Emphasis colors - overridden by color schemes */
   --color-em: var(--color-deck-yellow);

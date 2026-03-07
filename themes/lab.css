@@ -297,7 +297,7 @@ section {
   --highlight: #0969da;
   --gradient-mid: var(--highlight);
   @supports (color: color-mix(in lab, red, red)) {
-    --gradient-mid: color-mix(in srgb, var(--highlight) 40%, transparent);
+    --gradient-mid: color-mix(in srgb, var(--highlight) 40%, var(--bg));
   }
   --color-em: var(--color-deck-yellow);
   --color-strong: #d97706;
